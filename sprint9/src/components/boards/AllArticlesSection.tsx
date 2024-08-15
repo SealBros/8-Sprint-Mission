@@ -5,11 +5,23 @@ import Link from "next/link";
 import { format } from "date-fns";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownMenu from "@/components/ui/DropdownMenu";
-import LikeCountDisplay from "@/components/ui/LikeCountDisplay";
+import LikeDisplay from "../ui/LikeDisplay";
 import EmptyState from "@/components/ui/EmptyState";
 
-const ArticleItem = ({ article }) => {
-  const dateString = format(article.createdAt, "yyyy. MM. dd");
+// Article 인터페이스 정의
+interface Article {
+  id: string;
+  title: string;
+  image: string | null;
+  createdAt: Date;
+  writer: {
+    nickname: string;
+  };
+  likeCount: number;
+}
+
+const ArticleItem = ({ article }: { article: Article }) => {
+  const dateString = format(new Date(article.createdAt), "yyyy. MM. dd");
 
   return (
     <div className="flex flex-col mb-6">
@@ -28,7 +40,7 @@ const ArticleItem = ({ article }) => {
         </div>
         <div className="flex justify-between items-center text-gray-600 text-sm">
           <span>{article.writer.nickname} <span className="ml-2">{dateString}</span></span>
-          <LikeCountDisplay count={article.likeCount} iconWidth={24} gap={2} />
+          <LikeDisplay count={article.likeCount} iconWidth={24} gap={2} />
         </div>
       </Link>
       <hr className="my-6" />
@@ -36,17 +48,17 @@ const ArticleItem = ({ article }) => {
   );
 };
 
-const AllArticlesSection = ({ initialArticles }) => {
+const AllArticlesSection = ({ initialArticles }: { initialArticles: Article[] }) => {
   const [orderBy, setOrderBy] = useState("recent");
-  const [articles, setArticles] = useState(initialArticles);
+  const [articles, setArticles] = useState<Article[]>(initialArticles);
   const router = useRouter();
   const keyword = (router.query.q as string) || "";
 
-  const handleSortSelection = (sortOption) => {
+  const handleSortSelection = (sortOption: string) => {
     setOrderBy(sortOption);
   };
 
-  const handleSearch = (searchKeyword) => {
+  const handleSearch = (searchKeyword: string) => {
     const query = { ...router.query };
     if (searchKeyword.trim()) {
       query.q = searchKeyword;
